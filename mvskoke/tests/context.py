@@ -223,7 +223,7 @@ def conjugate_verb(verb):
         # Second Person Singular
         conjugations["2ps_pres_basic"] = [
             conjugations["1p"].stem + suffix
-            for suffix in ["skes", "eckes", "eccces", "etces"]
+            for suffix in ["skes", "eckes", "ecces", "etces"]
         ]
         conjugations["2ps_pres_tos"] = [
             conjugations["1p"].stem + suffix + " tos"
