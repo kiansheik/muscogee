@@ -99,7 +99,7 @@ function showQuestion() {
         partsArray = currentQuestion.d.split(' -');
         mode_val = modes.find(option => option.slice(0, 4).toLocaleLowerCase() == currentQuestion.m);
         console.log(mode_val)
-        document.getElementById('definition').href = `https://www.webonary.org/muscogee?s=${encodeURIComponent(partsArray[0])}&search=Search&key=mus&search_options_set=1&match_whole_words=1&match_accents=on`;
+        document.getElementById('definition').href = `https://www.nokose-oklane.com/conjugations/action_verb?word=${encodeURIComponent(partsArray[0])}&search=Search&key=mus&search_options_set=1&match_whole_words=1&match_accents=on`;
         // Add button for audio
         audio.src = currentQuestion.surl;
         if (currentQuestion.surl == null) {
