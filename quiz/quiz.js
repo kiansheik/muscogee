@@ -69,6 +69,7 @@ function populateDropdown(id, options) {
         optionElement.text = option;
         dropdown.add(optionElement);
     });
+    dropdown.value = options[0];
 }
 
 // Select the checkbox element
@@ -146,9 +147,9 @@ function resetDropdowns() {
         answer.style.display = 'none';
     });
     // Reset dropdowns to their default values
-    document.getElementById('tense').value = '';
-    document.getElementById('subject').value = '';
-    document.getElementById('object').value = '';
+    document.getElementById('tense').value = 'Present';
+    document.getElementById('subject').value = 'I';
+    document.getElementById('object').value = 'ø';
     // Reset the border color of all dropdowns to default
     dropdowns = document.querySelectorAll('.option');
     dropdowns.forEach(dropdown => {
