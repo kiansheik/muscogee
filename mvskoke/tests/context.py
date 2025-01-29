@@ -313,7 +313,7 @@ for verb in all_conjugations:
         )
         definition = f"{verb['1p'].root} - {d}"
         # { f: "Data not loaded...", m: "circunstancial", s: "ixé", o: "xé" },
-
+        # breakpoint()
         for key, value in [
             x
             for x in verb.items()
@@ -321,8 +321,7 @@ for verb in all_conjugations:
         ]:
             if key in ["1p", "2p", "3p", "raw_entry"]:
                 continue
-            if type(value) == str:
-                values = [value]
+            values = value if type(value) == list else [value]
             for v in values:
                 quiz.append(
                     {
