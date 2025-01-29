@@ -216,68 +216,72 @@ def conjugate_verb(verb):
         conjugations["3p"] = mv.Verb(verb["three_or_more"])
     try:
         # First Person Singular
-        conjugations["1ps_pres_basic"] = conjugations["1p"].stem + "is"
-        conjugations["1ps_pres_tos"] = conjugations["1p"].stem + "iyē tos"
-        conjugations["1ps_pres_ometv"] = conjugations["1p"].stem + "e towis"
+        conjugations["1ps_pres_basic"] = conjugations["1p"].l().stem + "is"
+        conjugations["1ps_pres_tos"] = conjugations["1p"].l().stem + "iyē tos"
+        conjugations["1ps_pres_ometv"] = conjugations["1p"].l().stem + "e towis"
 
         # Second Person Singular
         conjugations["2ps_pres_basic"] = [
-            conjugations["1p"].stem + suffix
+            conjugations["1p"].l().stem + suffix
             for suffix in ["skes", "eckes", "ecces", "etces"]
         ]
         conjugations["2ps_pres_tos"] = [
-            conjugations["1p"].stem + suffix + " tos"
+            conjugations["1p"].l().stem + suffix + " tos"
             for suffix in ["skē", "eckē", "eccē", "etcē"]
         ]
         conjugations["2ps_pres_ometv"] = [
-            conjugations["1p"].stem + "e to" + suffix
+            conjugations["1p"].l().stem + "e to" + suffix
             for suffix in ["wetskes", "weckes", "wecces", "ntces", "nckes"]
         ]
 
         # Third Person Singular
-        conjugations["3ps_pres_basic"] = conjugations["1p"].stem + "s"
-        conjugations["3ps_pres_tos"] = conjugations["1p"].stem + "ē tos"
-        conjugations["3ps_pres_ometv"] = conjugations["1p"].stem + "e tos"
+        conjugations["3ps_pres_basic"] = conjugations["1p"].l().stem + "s"
+        conjugations["3ps_pres_tos"] = conjugations["1p"].l().stem + "ē tos"
+        conjugations["3ps_pres_ometv"] = conjugations["1p"].l().stem + "e tos"
 
         # First Person Plural 2
-        conjugations["1pp_pres_basic"] = conjugations["2p"].stem + "ēs"
-        conjugations["1pp_pres_tos"] = conjugations["2p"].stem + "eyē tos"
-        conjugations["1pp_pres_ometv"] = conjugations["2p"].stem + "e towēs"
+        conjugations["1pp_pres_basic"] = conjugations["2p"].l().stem + "ēs"
+        conjugations["1pp_pres_tos"] = conjugations["2p"].l().stem + "eyē tos"
+        conjugations["1pp_pres_ometv"] = conjugations["2p"].l().stem + "e towēs"
 
         # First Person Plural more
-        conjugations["1pp+_pres_basic"] = conjugations["3p"].stem + "ēs"
-        conjugations["1pp+_pres_tos"] = conjugations["3p"].stem + "eyē tos"
-        conjugations["1pp+_pres_ometv"] = conjugations["3p"].stem + "e towēs"
+        conjugations["1pp+_pres_basic"] = conjugations["3p"].l().stem + "ēs"
+        conjugations["1pp+_pres_tos"] = conjugations["3p"].l().stem + "eyē tos"
+        conjugations["1pp+_pres_ometv"] = conjugations["3p"].l().stem + "e towēs"
 
         # Second Person Plural 2
         conjugations["2pp_pres_basic"] = [
-            conjugations["2p"].stem + suffix for suffix in ["atskes", "ackes"]
+            conjugations["2p"].l().stem + suffix for suffix in ["atskes", "ackes"]
         ]
         conjugations["2pp_pres_tos"] = [
-            conjugations["2p"].stem + suffix + " tos" for suffix in ["atskē", "ackē"]
+            conjugations["2p"].l().stem + suffix + " tos"
+            for suffix in ["atskē", "ackē"]
         ]
         conjugations["2pp_pres_ometv"] = [
-            conjugations["2p"].stem + "e towa" + suffix for suffix in ["tskes", "ckes"]
+            conjugations["2p"].l().stem + "e towa" + suffix
+            for suffix in ["tskes", "ckes"]
         ]
         # Second Person Plural more
         conjugations["2pp+_pres_basic"] = [
-            conjugations["3p"].stem + suffix for suffix in ["atskes", "ackes"]
+            conjugations["3p"].l().stem + suffix for suffix in ["atskes", "ackes"]
         ]
         conjugations["2pp+_pres_tos"] = [
-            conjugations["3p"].stem + suffix + " tos" for suffix in ["atskē", "ackē"]
+            conjugations["3p"].l().stem + suffix + " tos"
+            for suffix in ["atskē", "ackē"]
         ]
         conjugations["2pp+_pres_ometv"] = [
-            conjugations["3p"].stem + "e towa" + suffix for suffix in ["tskes", "ckes"]
+            conjugations["3p"].l().stem + "e towa" + suffix
+            for suffix in ["tskes", "ckes"]
         ]
 
         # Third Person Plural 2
-        conjugations["3pp_pres_basic"] = conjugations["2p"].stem + "akes"
-        conjugations["3pp_pres_tos"] = conjugations["2p"].stem + "akē tos"
-        conjugations["3pp_pres_ometv"] = conjugations["2p"].stem + "e towakes"
+        conjugations["3pp_pres_basic"] = conjugations["2p"].l().stem + "akes"
+        conjugations["3pp_pres_tos"] = conjugations["2p"].l().stem + "akē tos"
+        conjugations["3pp_pres_ometv"] = conjugations["2p"].l().stem + "e towakes"
         # Third Person Plural more
-        conjugations["3pp+_pres_basic"] = conjugations["3p"].stem + "akes"
-        conjugations["3pp+_pres_tos"] = conjugations["3p"].stem + "akē tos"
-        conjugations["3pp+_pres_ometv"] = conjugations["3p"].stem + "e towakes"
+        conjugations["3pp+_pres_basic"] = conjugations["3p"].l().stem + "akes"
+        conjugations["3pp+_pres_tos"] = conjugations["3p"].l().stem + "akē tos"
+        conjugations["3pp+_pres_ometv"] = conjugations["3p"].l().stem + "e towakes"
     except Exception as e:
         print(e)
         breakpoint()
