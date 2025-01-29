@@ -334,17 +334,16 @@ for verb in all_conjugations:
                         "d": definition,
                     }
                 )
-# write all_conjugations to a file
-with open(
-    os.path.join(os.path.dirname(__file__), "../../quiz/all_conjugations.json"),
-    "w",
-    encoding="utf-8",
-) as f:
-    json.dump(all_conjugations, f, cls=mv.VerbEncoder, ensure_ascii=False, indent=4)
-    # also save the same json minified and gziped
+
 with gzip.open(
     os.path.join(os.path.dirname(__file__), "../../quiz/quiz.json.gz"),
     "wt",
     encoding="utf-8",
 ) as f:
     json.dump(quiz, f, cls=mv.VerbEncoder, ensure_ascii=False)
+with gzip.open(
+    os.path.join(os.path.dirname(__file__), "../../quiz/all_conjugations.json.gz"),
+    "wt",
+    encoding="utf-8",
+) as f:
+    json.dump(all_conjugations, f, cls=mv.VerbEncoder, ensure_ascii=False)
