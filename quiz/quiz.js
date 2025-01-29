@@ -173,10 +173,10 @@ let obj_pref_map = {
 //'Me', 'You', 'Him/Her', 'Us', "Y'all", "Them"
     'Me': '1ps',
     'Us': '1pp',
-    'Them': '3pp',
     'You': '2ps',
     "Y'all": '2pp',
-    'Him/Her': '3ps'
+    'Him/Her': '3ps',
+    'Them': '3pp'
 } 
 
 // Function to create a reverse map
