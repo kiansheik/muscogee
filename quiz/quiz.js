@@ -84,7 +84,7 @@ let audio = new Audio();
 function showQuestion() {
     enviarButton.style.display = 'block';
     const progressFeedback = document.getElementById('progress-feedback');
-    progressFeedback.innerText = `Perguntas: ${currentQuestionIndex+1}/${question_count}`;
+    progressFeedback.innerText = `Questions: ${currentQuestionIndex+1}/${question_count}`;
 
     resetDropdowns();
     if (currentQuestionIndex < question_count) {
