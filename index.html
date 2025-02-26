@@ -268,12 +268,27 @@
         // const sheetCsvUrl = `https://docs.google.com/spreadsheets/d/${doc_id}/export?format=csv&sheet=AdminWords`;
         // const neos = loadNeoJSONSync("/nhe-enga/neologisms.csv")
         const trl = loadJSONSync('/muscogee/mvskoke_dic.json')
-        const compressedData = trl.map(item => ({
-            "first_word": item.headword || "",
-            "optional_number": "",
-            "definition": item.senses.length > 0 ? item.senses[0].definition : "",
-            "con": item.c || ""
-        }));
+        // Go through each object in trl and if it has senses, go through each sense
+        let compressedData = [];
+        for (let i = 0; i < trl.length; i++) {
+            if (trl[i].senses) {
+                for (let j = 0; j < trl[i].senses.length; j++) {
+                    let obj = {
+                        "first_word": trl[i].headword || "",
+                        "optional_number": j+1 || "",
+                        "definition": (trl[i].senses[j].graminfoname ? trl[i].senses[j].graminfoname + " - " : "") + trl[i].senses[j].definition + " " + trl[i].senses[j].restrictions,
+                        "con": trl[i].c || "",
+                    };
+                    compressedData.push(obj);
+                }
+            }
+        }
+        // const compressedData = trl.map(item => ({
+        //     "first_word": item.headword || "",
+        //     "optional_number": "",
+        //     "definition": item.senses.length > 0 ? (item.senses[0].graminfoname ? item.senses[0].graminfoname + " - " : "") + item.senses[0].definition + " " + item.senses[0].restrictions : "",
+        //     "con": item.c || ""
+        // }));
         // const combinedData = [...];
         window.jsonData = compressedData
     </script>

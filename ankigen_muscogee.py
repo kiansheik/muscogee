@@ -179,11 +179,24 @@ for html_file_path in tqdm(matching_files):
     with open(html_file_path, "r", encoding="utf-8") as file:
         soup = BeautifulSoup(file.read(), "html.parser")
 
-    # Iterate through all div.post elements
+    # build processing queue
+    processing_queue = []
     for post_div in soup.select("div.post"):
+        subentries = post_div.select(".subentry")
+        # if len(subentries) > 0:
+        #     breakpoint()
+        for subentry in subentries:
+            subentry.extract()
+            processing_queue.append((False, subentry))
+        main_headword = post_div.select_one(".mainheadword")
+        if main_headword:
+            processing_queue.append((True, post_div))
+
+    # Iterate through all div.post elements
+    for j, post_div in processing_queue:
         datum_json = {}
         # Select the main_headword elements (there should be one main_headword per post)
-        main_headword = post_div.select_one(".mainheadword")
+        main_headword = post_div.select_one(".mainheadword" if j else ".headword")
         # delete any element inside of main_headword that has class 'subentries'
         if main_headword:
             for subentry in post_div.select(".subentries"):
@@ -243,6 +256,7 @@ for html_file_path in tqdm(matching_files):
                 definition = sense.select_one(".definitionorgloss")
                 restrictions = sense.select_one(".restrictions")
                 examples = sense.select(".examplescontent")
+                graminfoname = sense.select_one(".graminfoname")
 
                 # Format sense number (if available)
                 sense_number_text = (
@@ -257,6 +271,9 @@ for html_file_path in tqdm(matching_files):
                 )
                 sense_datum["definition"] = definition_text
                 sense_datum["restrictions"] = restrictions_text
+                sense_datum["graminfoname"] = (
+                    graminfoname.get_text(strip=True) if graminfoname else ""
+                )
 
                 # Format examples (if available)
                 example_texts = []
