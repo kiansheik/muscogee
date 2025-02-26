@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from copy import deepcopy
 import gzip
 import sys, json
-import os
+import os, re
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -348,3 +348,27 @@ with gzip.open(
     encoding="utf-8",
 ) as f:
     json.dump(all_conjugations, f, cls=mv.VerbEncoder, ensure_ascii=False)
+
+restricted = [
+    x
+    for x in active_verbs
+    if "senses" in x.keys() and len(x["senses"]) > 0 and x["senses"][0]["restrictions"]
+]
+
+tl = Counter([x["senses"][0]["restrictions"] for x in restricted])
+print(tl)
+
+# print histogram of tl using matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Sort the Counter by value
+sorted_tl = dict(sorted(tl.items(), key=lambda item: item[1], reverse=True))
+
+fig, ax = plt.subplots(
+    figsize=(10, 6)
+)  # Increase the figure size for better readability
+ax.bar(sorted_tl.keys(), sorted_tl.values())
+ax.set_xticklabels(sorted_tl.keys(), rotation=45, ha="right")
+plt.tight_layout()  # Adjust layout to make room for the rotated labels
+plt.show()

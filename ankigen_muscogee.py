@@ -241,6 +241,7 @@ for html_file_path in tqdm(matching_files):
                 # Extract sense number, definition, and examples
                 sense_number = sense.select_one(".sensenumber")
                 definition = sense.select_one(".definitionorgloss")
+                restrictions = sense.select_one(".restrictions")
                 examples = sense.select(".examplescontent")
 
                 # Format sense number (if available)
@@ -251,7 +252,11 @@ for html_file_path in tqdm(matching_files):
 
                 # Format definition (if available)
                 definition_text = definition.get_text(strip=True) if definition else ""
+                restrictions_text = (
+                    restrictions.get_text(strip=True) if restrictions else ""
+                )
                 sense_datum["definition"] = definition_text
+                sense_datum["restrictions"] = restrictions_text
 
                 # Format examples (if available)
                 example_texts = []
