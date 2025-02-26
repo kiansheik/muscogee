@@ -40,6 +40,12 @@
                 .calendar-link > a:hover {
                     background-color: #2B7DE9; /* Darker blue on hover */
                 }
+
+                .audio-button {
+                    pointer-events: auto !important;
+                    z-index: 9999; /* Ensure it's above other elements */
+                }
+
             
                 .calendar-link > a > img {
                     vertical-align: middle;
@@ -273,11 +279,21 @@
         for (let i = 0; i < trl.length; i++) {
             if (trl[i].senses) {
                 for (let j = 0; j < trl[i].senses.length; j++) {
+                    let examps = trl[i].senses[j].example_texts;
+                    let exs = "";
+                    for (let k = 0; k < examps.length; k++) {
+                        exs += " || " + examps[k].example + " - " + examps[k].translation;
+                    }
+                    let audio = "";
+                    if (trl[i].pronunciations_audio.length > 0) {
+                        audio = trl[i].pronunciations_audio[0].server_url;
+                    }
                     let obj = {
                         "first_word": trl[i].headword || "",
                         "optional_number": j+1 || "",
-                        "definition": (trl[i].senses[j].graminfoname ? trl[i].senses[j].graminfoname + " - " : "") + trl[i].senses[j].definition + " " + trl[i].senses[j].restrictions,
+                        "definition": (trl[i].senses[j].graminfoname ? trl[i].senses[j].graminfoname + " - " : "") + trl[i].senses[j].definition + " " + trl[i].senses[j].restrictions + exs,
                         "con": trl[i].c || "",
+                        "audio": audio
                     };
                     compressedData.push(obj);
                 }
@@ -653,7 +669,11 @@
         // Update on window resize or orientation change
         window.addEventListener("resize", updateShowMoreLinks);
         window.addEventListener("orientationchange", updateShowMoreLinks);
-
+        const audio = new Audio();
+        const handleAudioClick = function(event) {
+            audio.src = event.currentTarget.getAttribute("data-audio");
+            audio.play().catch(error => console.error("Audio play error:", error));
+        };
         function performSearch() {
             const query = searchInput.value.trim().toLowerCase(); // Convert query to lowercase
 
@@ -711,9 +731,17 @@
                     // Create superscript for optional_number
                     const optionalNumberSup = document.createElement("sup");
                     optionalNumberSup.innerText = result.optional_number;
-
                     resultDiv.appendChild(link);
                     resultDiv.appendChild(optionalNumberSup);
+                    // create play button for audio link
+                    if (result.audio) {
+                        const audioButton = document.createElement("button");
+                        audioButton.classList.add("audio-button");
+                        audioButton.textContent = "🔊";
+                        // clone result.audio to dom to not lose it
+                        audioButton.setAttribute("data-audio", result.audio);
+                        resultDiv.appendChild(audioButton);
+                    }
                     resultDiv.innerHTML += ` ${linked_definition}`;
                     if (result.exact_match) {
                         resultDiv.classList.add("exact-match");
@@ -739,6 +767,9 @@
             const newUrl = `${window.location.pathname}?query=${encodeURIComponent(query)}`;
             history.pushState(null, null, newUrl);
             updateShowMoreLinks()
+            document.querySelectorAll(".audio-button").forEach(button => {
+                button.onclick = handleAudioClick;
+            });
         }
 
         // Read query parameter from URL
