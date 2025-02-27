@@ -340,6 +340,7 @@ for root, verb in all_conjugations:
                     "f": v,
                     "m": key.split("_")[1],
                     "s": key.split("_")[0],
+                    "t": key.split("_")[2],
                     "o": None,
                     "r": verb["1p"].root,
                     "d": definition,

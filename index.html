@@ -263,7 +263,7 @@
             const resultObject = {};
             list.forEach(obj => {
                 if (obj.m.slice(0, 2) === mode.slice(0, 2)) {
-                const key = [obj.s, obj.o];
+                const key = [obj.s, obj.o, obj.t];
                 resultObject[JSON.stringify(key)] = negar? obj.n: obj.f;
                 }
             });
@@ -293,7 +293,8 @@
                         "optional_number": j+1 || "",
                         "definition": (trl[i].senses[j].graminfoname ? trl[i].senses[j].graminfoname + " - " : "") + trl[i].senses[j].definition + " " + trl[i].senses[j].restrictions + exs,
                         "con": trl[i].c || "",
-                        "audio": audio
+                        "audio": audio,
+                        "see": trl[i].see,
                     };
                     compressedData.push(obj);
                 }
@@ -315,15 +316,28 @@
             'I': '1ps',
             'You': '2ps',
             "He/She": '3ps',
-            'They': '3pp',
-            'We': '1pp',
-            "Y'all": '2pp',
-            'They+': '3pp+',
-            'We+': '1pp+',
-            "Y'all+": '2pp+',
+            'We (of 2)': '1pp',
+            "Y'all (of 2)": '2pp',
+            'They (of 2)': '3pp',
+            'We (of 3+)': '1pp+',
+            "Y'all (of 3+)": '2pp+',
+            'They (of 3+)': '3pp+',
         };
         let obj_pref_map = {
             'ø': null,
+            // 'xe': '1ps',
+            // 'nde': '2ps',
+            // "i": '3p',
+            // 'oré': '1ppe',
+            // 'îandé': '1ppi',
+            // "pe": '2pp',
+            // "îe": 'refl',
+            // "îo": 'mut',
+        };
+        let form_pref_map = {
+            "Basic": "basic",
+            'Ometv': "ometv",
+            "Tos": "tos"
             // 'xe': '1ps',
             // 'nde': '2ps',
             // "i": '3p',
@@ -338,6 +352,7 @@
             const filteredConjugations = conjugations_b.filter(item => item.m === mode.slice(0, 4));
             const uniqueSubjects = new Set(filteredConjugations.map(item => item.s));
             const uniqueObjects = new Set(filteredConjugations.map(item => item.o));
+            const uniqueFormats = new Set(filteredConjugations.map(item => item.t));
             let conjugations =  transformConjList(mode, filteredConjugations, negar);
             let subj_m = subj_pref_map;
             let obj_m = obj_pref_map;
@@ -347,38 +362,59 @@
             const objects_vals = Object.entries(obj_m)
                 .filter(item => uniqueObjects.has(item[1]))
                 .map(([key, value]) => value);
+            const formats_vals = Object.entries(form_pref_map)
+                .filter(item => uniqueFormats.has(item[1]))
+                .map(([key, value]) => value);
             const subjects = Object.entries(subj_m)
                 .filter(item => uniqueSubjects.has(item[1]))
                 .map(([key, value]) => key);
             const objects = Object.entries(obj_m)
                 .filter(item => uniqueObjects.has(item[1]))
                 .map(([key, value]) => key);
-            let htmlString = `<table class="options-container" id="conj-${un_id}">`;
+            const formats = Object.entries(form_pref_map)
+                .filter(item => uniqueFormats.has(item[1]))
+                .map(([key, value]) => key);
+                let htmlString = `<table class="options-container" id="conj-${un_id}">`;
                 htmlString += `<tr><th>
-                    Modo<br><select id="mode-${un_id}" class="option">
+                    Tense<br><select id="mode-${un_id}" class="option">
                     <!-- Add options dynamically using JavaScript -->
                 </select><br>
-                    <input type="checkbox" id="negarCheckbox-${un_id}" ${negar?"checked":""} name="negarCheckbox">
-                    <label for="negarCheckbox">Negar</label>
-                </th><th class="label" style="background-color: #e4ffe4;" colspan="${(objects.length + 1)}">Objeto</th></tr>`;
-            htmlString += `<th style="background-color: #fef9c3ab;" class="label">
-                Sujeito</th>`;
-            for (const object of objects) {
-                htmlString += `<th style="background-color: #e4ffe4;">${object}</th>`;
-            }
-            htmlString += '</tr>';
-            for (let i = 0; i < subjects.length; i++) {
-                htmlString += `<tr><th style="background-color: #fef9c3ab;">${subjects[i]}</th>`;
-                const subj = subjects_vals[i];
-                for (let j = 0; j < objects.length; j++) {
-                    const obj = objects_vals[j];
-                    let conj = conjugations[JSON.stringify([subj, obj])] || '-'
-                    htmlString += `<td>${conj}</td>`;
+                    <input type="checkbox" id="negarCheckbox-${un_id}" ${negar ? "checked" : ""} name="negarCheckbox">
+                    <label for="negarCheckbox">Negate</label>
+                </th><th class="label" style="background-color: #e4ffe4;" colspan="${(objects.length * formats.length)}">Object</th></tr>`;
+
+                // First row for objects
+                htmlString += `<tr><th style="background-color: #fef9c3ab;" class="label">Subject</th>`;
+                for (const object of objects) {
+                    htmlString += `<th style="background-color: #e4ffe4;" colspan="${formats.length}">${object}</th>`;
                 }
-                htmlString += '</tr>';
-            }
-            htmlString += '</table>';
-            return htmlString;
+                htmlString += `</tr>`;
+
+                // Second row for formats under each object
+                htmlString += `<tr><th></th>`; // Empty header for subjects
+                for (const object of objects) {
+                    for (const format of formats) {
+                        htmlString += `<th style="background-color: #d4f0ff;">${format}</th>`;
+                    }
+                }
+                htmlString += `</tr>`;
+
+                // Rows for conjugations
+                for (let i = 0; i < subjects.length; i++) {
+                    htmlString += `<tr><th style="background-color: #fef9c3ab;">${subjects[i]}</th>`;
+                    const subj = subjects_vals[i];
+                    for (let j = 0; j < objects.length; j++) {
+                        const obj = objects_vals[j];
+                        for (const format of formats_vals) {
+                            let conj = (conjugations[JSON.stringify([subj, obj, format])]) || '-';
+                            htmlString += `<td>${conj}</td>`;
+                        }
+                    }
+                    htmlString += `</tr>`;
+                }
+                htmlString += `</table>`;
+                return htmlString;
+
         }
 
         function searchByFirstWord(data, query) {
@@ -622,8 +658,8 @@
 
             // Update the link text based on the expanded state
             link.textContent = preview.classList.contains('expanded') 
-            ? 'Mostrar menos...' 
-            : 'Mostrar mais...';
+            ? 'Show more...' 
+            : 'Show less...';
         }
 
         function updateShowMoreLinks() {
@@ -736,6 +772,23 @@
                         resultDiv.classList.add("exact-match");
                     } else {
                         resultDiv.classList.add("approximate-match");
+                    }
+                    if (result.see) {
+                        // Add see also with each link inside of the result.see array at x["headword"]
+                        const seeAlso = document.createElement("div");
+                        seeAlso.classList.add("see-also");
+                        seeAlso.innerHTML = "See also: ";
+                        result.see.forEach(x => {
+                            const seeLink = document.createElement("a");
+                            seeLink.href = `${window.location.pathname}?query=${encodeURIComponent(x["headword"])}`;
+                            seeLink.innerText = x["headword"];
+                            seeAlso.appendChild(seeLink);
+                            // if it's not the last element
+                            if (x !== result.see[result.see.length - 1]) {
+                                seeAlso.innerHTML += ", ";
+                            }
+                        });
+                        resultDiv.appendChild(seeAlso);
                     }
                     resultsDiv.appendChild(upperResultDiv);
                     show_more = document.createElement("a");
