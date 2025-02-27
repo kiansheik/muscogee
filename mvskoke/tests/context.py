@@ -84,7 +84,9 @@ with open(
 ) as f:
     mvskoke_dict = json.load(f)
 
-active_verbs = [x for x in mvskoke_dict if x["headword"].endswith("etv")]
+active_verbs = [
+    x for x in mvskoke_dict if x["headword"].endswith("etv")
+]  # and True in [True for y in x["senses"] if "verb" in y["graminfoname"].split(" ")]
 three_or_more = [
     x
     for x in active_verbs
@@ -223,11 +225,11 @@ def conjugate_verb(verb):
         # Second Person Singular
         conjugations["2ps_pres_basic"] = [
             conjugations["1p"].l().stem + suffix
-            for suffix in ["skes", "eckes", "ecces", "etces"]
+            for suffix in ["eskes", "eckes", "ecces", "etces"]
         ]
         conjugations["2ps_pres_tos"] = [
             conjugations["1p"].l().stem + suffix + " tos"
-            for suffix in ["skē", "eckē", "eccē", "etcē"]
+            for suffix in ["eskē", "eckē", "eccē", "etcē"]
         ]
         conjugations["2ps_pres_ometv"] = [
             conjugations["1p"].stem + "e to" + suffix
@@ -286,12 +288,16 @@ def conjugate_verb(verb):
     return conjugations
 
 
-all_conjugations = [conjugate_verb(verb) for verb in active_verbs_dict.values()]
+# lik = [(verb, conjugate_verb(verb)) for verb in active_verbs_dict.values() if verb["raw_entry"]["first_word"] == "liketv"][0]
+all_conjugations = [(verb, conjugate_verb(verb)) for verb in active_verbs_dict.values()]
 liketv = conjugate_verb("liketv")
 
 # make the quiz format
 quiz = []
-for verb in all_conjugations:
+# make dictionary format
+for root, verb in all_conjugations:
+    q_obj = dict()
+    con_list = []
     if "raw_entry" in verb.keys():
         sound_url = (
             verb["raw_entry"]["pronunciations_audio"][0]["server_url"]
@@ -315,26 +321,36 @@ for verb in all_conjugations:
         )
         definition = f"{verb['1p'].root} - {d}"
         # { f: "Data not loaded...", m: "circunstancial", s: "ixé", o: "xé" },
-        # breakpoint()
+        if verb["1p"].stem == "lik":
+            breakpoint()
         for key, value in [
             x
             for x in verb.items()
-            if ("+" in x[0] and show3) or ("+" not in x[0] and not show3)
+            if ("pp" not in x[0])
+            or (not show3 and show2 and "+" not in x[0])
+            or ("+" in x[0] and show3)
+            or ("pp_" in x[0] and show1)
         ]:
             if key in ["1p", "2p", "3p", "raw_entry"]:
                 continue
             values = value if type(value) == list else [value]
             for v in values:
-                quiz.append(
-                    {
-                        "surl": sound_url,
-                        "f": v,
-                        "m": key.split("_")[1],
-                        "s": key.split("_")[0],
-                        "o": None,
-                        "d": definition,
-                    }
-                )
+                q_obj = {
+                    "surl": sound_url,
+                    "f": v,
+                    "m": key.split("_")[1],
+                    "s": key.split("_")[0],
+                    "o": None,
+                    "r": verb["1p"].root,
+                    "d": definition,
+                }
+                con_list.append(q_obj)
+                quiz.append(q_obj)
+        for i, val in enumerate(mvskoke_dict):
+            if val == root["raw_entry"]:
+                mvskoke_dict[i]["c"] = con_list
+
+# mvskoke_dict with conjugations; go through each
 
 with gzip.open(
     os.path.join(os.path.dirname(__file__), "../../quiz/quiz.json.gz"),
@@ -347,7 +363,24 @@ with gzip.open(
     "wt",
     encoding="utf-8",
 ) as f:
-    json.dump(all_conjugations, f, cls=mv.VerbEncoder, ensure_ascii=False)
+    json.dump(
+        [x[1] for x in all_conjugations], f, cls=mv.VerbEncoder, ensure_ascii=False
+    )
+
+with gzip.open(
+    os.path.join(os.path.dirname(__file__), "../../dict_w_conjugations.json.gz"),
+    "wt",
+    encoding="utf-8",
+) as f:
+    json.dump(mvskoke_dict, f, cls=mv.VerbEncoder, ensure_ascii=False)
+
+with open(
+    os.path.join(os.path.dirname(__file__), "../../dict_w_conjugations.json"),
+    "w",
+    encoding="utf-8",
+) as f:
+    json.dump(mvskoke_dict, f, cls=mv.VerbEncoder, ensure_ascii=False)
+
 
 restricted = [
     x
@@ -358,17 +391,17 @@ restricted = [
 tl = Counter([x["senses"][0]["restrictions"] for x in restricted])
 print(tl)
 
-# print histogram of tl using matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
+# # print histogram of tl using matplotlib
+# import matplotlib.pyplot as plt
+# import numpy as np
 
-# Sort the Counter by value
-sorted_tl = dict(sorted(tl.items(), key=lambda item: item[1], reverse=True))
+# # Sort the Counter by value
+# sorted_tl = dict(sorted(tl.items(), key=lambda item: item[1], reverse=True))
 
-fig, ax = plt.subplots(
-    figsize=(10, 6)
-)  # Increase the figure size for better readability
-ax.bar(sorted_tl.keys(), sorted_tl.values())
-ax.set_xticklabels(sorted_tl.keys(), rotation=45, ha="right")
-plt.tight_layout()  # Adjust layout to make room for the rotated labels
-plt.show()
+# fig, ax = plt.subplots(
+#     figsize=(10, 6)
+# )  # Increase the figure size for better readability
+# ax.bar(sorted_tl.keys(), sorted_tl.values())
+# ax.set_xticklabels(sorted_tl.keys(), rotation=45, ha="right")
+# plt.tight_layout()  # Adjust layout to make room for the rotated labels
+# plt.show()

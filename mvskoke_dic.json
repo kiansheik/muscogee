@@ -130777,7 +130777,7 @@
         "pronunciations_audio": [
             {
                 "server_url": "https://s3.us-east-2.amazonaws.com/cloud-storage.webonary.org/muscogee/AudioVisual/avretv-mus14228.mp3",
-                "local_url": null
+                "local_url": "audio/avretv-mus14228.mp3"
             }
         ],
         "senses": [

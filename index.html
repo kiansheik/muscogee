@@ -273,7 +273,7 @@
         // const doc_id = "1NH_SgkBYY-vAITMtxrZogzihZGsbhIXCaes6HJrcJww";
         // const sheetCsvUrl = `https://docs.google.com/spreadsheets/d/${doc_id}/export?format=csv&sheet=AdminWords`;
         // const neos = loadNeoJSONSync("/nhe-enga/neologisms.csv")
-        const trl = loadJSONSync('/muscogee/mvskoke_dic.json')
+        const trl = loadJSONSync('/muscogee/dict_w_conjugations.json')
         // Go through each object in trl and if it has senses, go through each sense
         let compressedData = [];
         for (let i = 0; i < trl.length; i++) {
@@ -309,49 +309,38 @@
         window.jsonData = compressedData
     </script>
     <script>
-        let modes = ['indicativo', 'permissivo', 'circunstancial', 'gerundio', 'imperativo'];
+        let modes = ['present'];
         let subj_pref_map = {
             'ø': null,
-            'ixé': '1ps',
-            'endé': '2ps',
-            "a'e": '3p',
-            'oré': '1ppe',
-            'îandé': '1ppi',
-            "peẽ": '2pp',
+            'I': '1ps',
+            'You': '2ps',
+            "He/She": '3ps',
+            'They': '3pp',
+            'We': '1pp',
+            "Y'all": '2pp',
+            'They+': '3pp+',
+            'We+': '1pp+',
+            "Y'all+": '2pp+',
         };
         let obj_pref_map = {
             'ø': null,
-            'xe': '1ps',
-            'nde': '2ps',
-            "i": '3p',
-            'oré': '1ppe',
-            'îandé': '1ppi',
-            "pe": '2pp',
-            "îe": 'refl',
-            "îo": 'mut',
+            // 'xe': '1ps',
+            // 'nde': '2ps',
+            // "i": '3p',
+            // 'oré': '1ppe',
+            // 'îandé': '1ppi',
+            // "pe": '2pp',
+            // "îe": 'refl',
+            // "îo": 'mut',
         };
         function generateConjugationTable(mode, conjugations_b, un_id, ne) {
             let negar = ne || false;
-            const filteredConjugations = conjugations_b.filter(item => item.m === mode.slice(0, 2));
+            const filteredConjugations = conjugations_b.filter(item => item.m === mode.slice(0, 4));
             const uniqueSubjects = new Set(filteredConjugations.map(item => item.s));
             const uniqueObjects = new Set(filteredConjugations.map(item => item.o));
             let conjugations =  transformConjList(mode, filteredConjugations, negar);
             let subj_m = subj_pref_map;
             let obj_m = obj_pref_map;
-            if (mode === 'imperativo'){
-                subj_m = {
-                    'endé': '2ps',
-                    "peẽ": '2pp',
-                };
-            } else if (mode === 'circunstancial'){
-                subj_m = {
-                    'ø': null,
-                    'ixé': '1ps',
-                    'oré': '1ppe',
-                    'îandé': '1ppi',
-                    "a'e": '3p'
-                };
-            }
             const subjects_vals = Object.entries(subj_m)
                 .filter(item => uniqueSubjects.has(item[1]))
                 .map(([key, value]) => value);
@@ -758,7 +747,7 @@
                     show_more.textContent = "Mostrar mais...";
                     upperResultDiv.appendChild(show_more);
                     if (result.con) {
-                        appendOptionsToResultDiv(resultDiv, result.con, 'indicativo', false);
+                        appendOptionsToResultDiv(resultDiv, result.con, 'present', false);
                     }
                 });
             } else {
