@@ -262,10 +262,14 @@
         function transformConjList(mode, list, negar) {
             const resultObject = {};
             list.forEach(obj => {
-                if (obj.m.slice(0, 2) === mode.slice(0, 2)) {
+            if (obj.m.slice(0, 2) === mode.slice(0, 2)) {
                 const key = [obj.s, obj.o, obj.t];
-                resultObject[JSON.stringify(key)] = negar? obj.n: obj.f;
+                const keyString = JSON.stringify(key);
+                if (!resultObject[keyString]) {
+                resultObject[keyString] = [];
                 }
+                resultObject[keyString].push(negar ? obj.n : obj.f);
+            }
             });
 
         return resultObject;
@@ -407,6 +411,10 @@
                         const obj = objects_vals[j];
                         for (const format of formats_vals) {
                             let conj = (conjugations[JSON.stringify([subj, obj, format])]) || '-';
+                            // if conj is an array, join it with a <br>
+                            if (Array.isArray(conj)) {
+                                conj = conj.join('<br>');
+                            }
                             htmlString += `<td>${conj}</td>`;
                         }
                     }
