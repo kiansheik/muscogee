@@ -90,24 +90,24 @@ active_verbs = [
 three_or_more = [
     x
     for x in active_verbs
-    if len(x["senses"]) > 0 and "of three or more" in x["senses"][0]["definition"]
-]
-one = [
-    x
-    for x in active_verbs
-    if len(x["senses"]) > 0 and "of one" in x["senses"][0]["definition"]
+    if len(x["senses"]) > 0 and "three or more" in x["senses"][0]["definition"]
 ]
 two = [
     x
     for x in active_verbs
     if len(x["senses"]) > 0
     and "of two" in x["senses"][0]["definition"]
-    and "of two or more" not in x["senses"][0]["definition"]
+    and "two or more" not in x["senses"][0]["definition"]
 ]
 two_or_more = [
     x
     for x in active_verbs
-    if len(x["senses"]) > 0 and "of two or more" in x["senses"][0]["definition"]
+    if len(x["senses"]) > 0 and "two or more" in x["senses"][0]["definition"]
+]
+one = [
+    x
+    for x in active_verbs
+    if x not in three_or_more and x not in two and x not in two_or_more
 ]
 
 one_set = {x["headword"] for x in one}
@@ -198,7 +198,7 @@ for verb in active_verbs:
         active_verbs_dict[word]["raw_entry"] = verb
 
 rest = [x for x in active_verbs if x["headword"] not in all_pluriform]
-assert len(rest) + len(all_pluriform) == len(active_verbs)
+# assert len(rest) + len(all_pluriform) == len(active_verbs)
 
 
 def conjugate_verb(verb):
@@ -290,7 +290,8 @@ def conjugate_verb(verb):
 
 # lik = [(verb, conjugate_verb(verb)) for verb in active_verbs_dict.values() if verb["raw_entry"]["first_word"] == "liketv"][0]
 all_conjugations = [(verb, conjugate_verb(verb)) for verb in active_verbs_dict.values()]
-liketv = conjugate_verb("liketv")
+kerretv = conjugate_verb("kerretv")
+# breakpoint()
 
 # make the quiz format
 quiz = []

@@ -19,4 +19,4 @@ push:
 gen_data:
 	python3.11 ankigen_muscogee.py
 	python3 mvskoke/tests/context.py
-	python3 pdf_extract.py
+	python3.11 pdf_extract.py
