@@ -3,33 +3,77 @@ let dataset = [
     // Add more sentences and information here
 ];
 
+let easy_dataset = [
+    { f: "Data not loaded...", m: "circunstancial", s: "ixé", o: "xé" },
+    // Add more sentences and information here
+];
+
+let hard_dataset = [
+    { f: "Data not loaded...", m: "circunstancial", s: "ixé", o: "xé" },
+    // Add more sentences and information here
+];
+
 let currentQuestionIndex = 0;
 let score = 0;
 let question_count = 5;
 let modes = ['Present'];
 let enviarButton = document.getElementById('enviar');
-
+let isHardMode = false;
+let toggleDifficulty = null;
 
 function loadCompressedJSONSync(bytes) {
     var decompressedData = pako.inflate(bytes, { to: 'string' });
     return JSON.parse(decompressedData);
 }
 
+function loadJSONSync(url) {
+    var xhr = new XMLHttpRequest();
+    // xhr.overrideMimeType("application/json");
+    xhr.open('GET', url, false); // Make the request synchronous
+    xhr.send(null);
+    if (xhr.readyState == 4 && xhr.status == 200) {
+        return JSON.parse(xhr.responseText);
+    }
+    return null;
+}
+
 function startQuiz() {
+    function applyHardMode() {
+        console.log("Hard Mode");
+        dataset = hard_dataset;
+    }
+    
+    // Adjust settings for Easy Mode
+    function applyEasyMode() {
+        console.log("Easy Mode");
+        dataset = easy_dataset;
+    }
+    // Ensure initial mode is applied
+    document.addEventListener("DOMContentLoaded", () => {
+        const modeButton = document.getElementById("difficulty-toggle");
+        modeButton.classList.add("easy-mode");
+    });
+    
+    // Ensure difficulty mode is applied when quiz starts
+    document.addEventListener("DOMContentLoaded", () => {
+        applyEasyMode();
+    });
     // Load the dataset from 'verbs.json'
     fetch('quiz.json.gz')
         .then(response => response.arrayBuffer())
         .then(data => {
             // Assign the loaded data to the dataset variable
-            dataset = loadCompressedJSONSync(data);
-            // dataset = dataset.filter(item => item.c !== undefined);
-            console.log(dataset);
-            // copy the item.f field to a new item.n field in the dataset
-            dataset.forEach(item => {
+            hard_dataset = loadCompressedJSONSync(data);
+
+            // hard_dataset = hard_dataset.filter(item => item.c !== undefined);
+            console.log(hard_dataset);
+            // copy the item.f field to a new item.n field in the hard_dataset
+            hard_dataset.forEach(item => {
                 item.n = item.f;
             });
-            // dataset = dataset.flatMap(item => item.c);
-            // Shuffle the dataset
+            // hard_dataset = hard_dataset.flatMap(item => item.c);
+            // Shuffle the hard_dataset
+            // dataset = hard_dataset;
             shuffleDataset();
 
             // Populate dropdown options
@@ -42,6 +86,37 @@ function startQuiz() {
         .catch(error => {
             console.error('Error loading dataset:', error);
         });
+        let easy_raw = loadJSONSync('/muscogee/quiz_easymode.json');
+        console.log("easy_raw", easy_raw);
+        easy_dataset = Array();
+        // for each object in the list of easy_raw, if the con object is a list, add each object in the list to the easy_dataset
+        for (let i = 0; i < easy_raw.length; i++) {
+            if (easy_raw[i][0].c) {
+                easy_dataset = easy_dataset.concat(easy_raw[i][0].c);
+            }
+        }
+        console.log("easy", easy_dataset);
+        dataset = easy_dataset;
+        // Adjust settings for Hard Mode
+        // Easy mode
+        toggleDifficulty = function() {
+            isHardMode = !isHardMode;
+            const modeButton = document.getElementById("difficulty-toggle");
+        
+            if (isHardMode) {
+                modeButton.textContent = "Hard Mode";
+                modeButton.classList.remove("easy-mode");
+                modeButton.classList.add("hard-mode");
+                applyHardMode();
+            } else {
+                modeButton.textContent = "Easy Mode";
+                modeButton.classList.remove("hard-mode");
+                modeButton.classList.add("easy-mode");
+                applyEasyMode();
+            }
+        }
+        applyEasyMode();
+
 }
 
 function restartQuiz() {
@@ -239,3 +314,5 @@ document.querySelectorAll('.mood-button').forEach(button => {
         button.classList.toggle('mood-button-active');
     });
 });
+
+

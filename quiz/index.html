@@ -43,6 +43,10 @@
             <label for="autoSound">Auto-sound</label>
           </div>
         <!-- Add this element where you want to display the progress feedback -->
+        <div id="difficulty-container">
+            <label for="difficulty">Current difficulty:</label>
+            <button id="difficulty-toggle" onclick="toggleDifficulty()">Easy Mode</button>
+        </div>
         <button class="mood-button mood-button-active" id="pres">Present</button>
         <br>
         <h2 id="progress-feedback"></h2>
@@ -50,7 +54,7 @@
             <button  id="definition-audio" class="simple-button">🔊 </button>
             <a target="_blank" id="definition" href="'#"></a><p id="definition-text"></p></p>
             <strong><p id="response"></p></strong>
-        </div>
+        </div>      
         <div id="question-container">
             <b><p id="question"></p></b>
         </div>
@@ -84,5 +88,43 @@
     </div>
 
     <script src="quiz.js"></script>
+
+    <style>
+        #difficulty-container {
+    top: 10px;
+    right: 20px;  /* Moves it to the right */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+}
+
+#difficulty-toggle {
+    padding: 8px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Easy Mode Style */
+.easy-mode {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
+
+/* Hard Mode Style */
+.hard-mode {
+    background-color: #E74C3C; /* Red */
+    color: white;
+}
+
+/* Add hover effect */
+#difficulty-toggle:hover {
+    opacity: 0.8;
+}
+
+    </style>
 </body>
 </html>

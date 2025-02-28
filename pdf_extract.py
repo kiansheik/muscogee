@@ -1,4 +1,5 @@
 import json
+import os
 from tqdm import tqdm
 from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer, LTChar, LTTextBoxHorizontal, LTRect
@@ -133,14 +134,67 @@ def extract_table(pdf_path):
                         columns[4].append("")
                         columns[3].append("")
                         print([len(columns[i]) for i in range(6)])
-                        df = pd.DataFrame(columns)
+                        # df = pd.DataFrame(columns)
 
             else:
                 print(lens)
                 print([len(x) for x in columns.values()])
                 print(columns[2])
-                breakpoint()
+                # for each value in columns[0], if it starts with a "/", then add it to the preceding entry and shorten the list
+                for key in columns.keys():
+                    for i in range(1, len(columns[key])):
+                        if columns[key][i].startswith("/"):
+                            columns[key][i - 1] += columns[key][i]
+                            columns[key][i] = "DELETED-"
+                    columns[key] = [x for x in columns[key] if x != "DELETED-"]
+                print()
+                min_len = min([len(x) for x in columns.values()])
+                for key in columns.keys():
+                    if len(columns[key]) == 1 + min_len:
+                        columns[key][1] = f"{columns[key][0]} {columns[key][1]}"
+                        del columns[key][0]
+                print(lens)
+                print([len(x) for x in columns.values()])
+                print(columns[2])
+
+                # breakpoint()
                 # the first row is actualy the index
+        try:
+            df = pd.DataFrame(columns)
+        except:
+            print("badcolumns")
+            print(lens)
+            print([len(x) for x in columns.values()])
+            print(columns[2])
+            for key in columns.keys():
+                for i in range(1, len(columns[key])):
+                    # if columns[key][i] == '-':
+                    #     columns[key][i] = "DELETED"
+                    if " " in columns[key][i] and key in [0, 3]:
+                        columns[key][i] = columns[key][i].replace(" ", "")
+                columns[key] = [x for x in columns[key] if x != "DELETED-" and x]
+            print("bettercolumns")
+            print(lens)
+            print([len(x) for x in columns.values()])
+            print(columns[2])
+            # breakpoint()
+            try:
+                df = pd.DataFrame(columns)
+            except:
+                for key in columns.keys():
+                    for i in range(1, len(columns[key])):
+                        if key == 0 and not columns[key][i - 1].endswith("-"):
+                            columns[key][
+                                i - 1
+                            ] = f"{columns[key][i-1]}{columns[key][i]}"
+                            columns[key][i] = "DELETED-"
+                    columns[key] = [x for x in columns[key] if x != "DELETED-" and x]
+                    try:
+                        df = pd.DataFrame(columns)
+                    except:
+                        print("lastcolumns")
+                        print([len(x) for x in columns.values()])
+                        breakpoint()
         df.columns = [
             "Words1",
             "Meaning1",
@@ -150,12 +204,12 @@ def extract_table(pdf_path):
             "Frequency2",
         ]
         df = df.drop(0)
-        df["Frequency2"] = 1
+        # df["Frequency2"] = 1
         try:
             df = df.astype(dtypes)
         except:
             print("badnumbers")
-            breakpoint()
+            break
         # add df values to words_data
         words_data.append(df)
 
@@ -164,6 +218,10 @@ def extract_table(pdf_path):
     # Now we need to split the df in the middle between the 3-3 columns, and stack the right column underneath the left column
     left_df = words_df.iloc[:, :3]
     right_df = words_df.iloc[:, 3:]
+    # Add "pos" tag "verb" to the left_df and "noun" to the right_df
+    left_df["pos"] = "verb"
+    right_df["pos"] = "noun"
+    # breakpoint()
     # set columns to same name
     right_df.columns = left_df.columns
     words_df = pd.concat([left_df, right_df], ignore_index=True)
@@ -175,13 +233,13 @@ def extract_table(pdf_path):
 
 
 # Update the path to your PDF file
-pdf_path = "table_1.pdf"
+pdf_path = "table_2.pdf"
 word_df = extract_table(pdf_path)
 # extract_definitions_by_color_and_size(pdf_path, target_color, min_font_size)
 
 # Show histogram in matplotlib of the buckets of 25 from 600 to 0 from word_df["Frequency1"]
 # filter out strings which cannot become ints
-breakpoint()
+# breakpoint()
 # word_df = word_df[word_df["Frequency1"].str.isnumeric()]
 word_df["Frequency1"] = word_df["Frequency1"].astype(int)
 # sort the dataframe by frequency descending
@@ -190,7 +248,7 @@ word_df = word_df.sort_values(by="Frequency1", ascending=False)
 # Calculate the cumulative sum of frequencies for the Pareto line
 word_df["Cumulative"] = word_df["Frequency1"].cumsum()
 
-# # Create the Pareto chart
+# Create the Pareto chart
 # fig, ax1 = plt.subplots(figsize=(10, 6))
 
 # # Plot the bar chart for the frequencies
@@ -212,4 +270,35 @@ word_df["Cumulative"] = word_df["Frequency1"].cumsum()
 # plt.show()
 
 # Get df where frequency is greater than 7
-word_df_most = word_df.iloc[:100]
+word_df_most = word_df.iloc[:200]
+
+from fuzzywuzzy import fuzz
+
+
+def fuzzy_best_match(word, dat, top_n=1):
+    scores = [(i, fuzz.ratio(word, x["headword"])) for (i, x) in enumerate(dat)]
+    scores.sort(key=lambda x: x[1], reverse=True)
+    return [dat[i[0]] for i in scores[:top_n]]
+
+
+with open(
+    os.path.join(os.path.dirname(__file__), "dict_w_conjugations.json"),
+    "r",
+    encoding="utf-8",
+) as f:
+    mvskoke_dict = json.load(f)
+
+word_df_most["headword"] = word_df_most["Words1"].apply(
+    lambda x: x.split("/")[0].replace("-", "etv").strip()
+)
+most_verbs = word_df_most[word_df_most["pos"] == "verb"]
+
+# for each verb in most_verbs, find the best match in mvskoke_dict with fuzzy_best_match
+most_verbs["best_match"] = most_verbs["headword"].apply(
+    lambda x: fuzzy_best_match(x, mvskoke_dict, 1)
+)
+
+# save as quiz easymode.json
+with open("quiz_easymode.json", "w", encoding="utf-8") as f:
+    # just save the best_match
+    json.dump(most_verbs["best_match"].tolist(), f, ensure_ascii=False, indent=4)
