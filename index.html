@@ -666,8 +666,8 @@
 
             // Update the link text based on the expanded state
             link.textContent = preview.classList.contains('expanded') 
-            ? 'Show more...' 
-            : 'Show less...';
+            ? 'Show less...' 
+            : 'Show more...';
         }
 
         function updateShowMoreLinks() {
@@ -805,14 +805,14 @@
                     show_more.onclick = function(event) {
                         toggleContent(event, this);
                     };
-                    show_more.textContent = "Mostrar mais...";
+                    show_more.textContent = "Show more...";
                     upperResultDiv.appendChild(show_more);
                     if (result.con) {
                         appendOptionsToResultDiv(resultDiv, result.con, 'present', false);
                     }
                 });
             } else {
-                resultsDiv.innerHTML = "Não foram encontrados resultados.";
+                resultsDiv.innerHTML = "No results found.";
             }
             const newUrl = `${window.location.pathname}?query=${encodeURIComponent(query)}`;
             history.pushState(null, null, newUrl);
