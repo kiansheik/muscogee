@@ -40,12 +40,14 @@ function loadJSONSync(url) {
 function startQuiz() {
     function applyHardMode() {
         console.log("Hard Mode");
+        shuffleDataset();
         dataset = hard_dataset;
     }
     
     // Adjust settings for Easy Mode
     function applyEasyMode() {
         console.log("Easy Mode");
+        shuffleDataset();
         dataset = easy_dataset;
     }
     // Ensure initial mode is applied
@@ -132,6 +134,14 @@ function shuffleDataset() {
     for (let i = dataset.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [dataset[i], dataset[j]] = [dataset[j], dataset[i]];
+    }
+    for (let i = easy_dataset.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [easy_dataset[i], easy_dataset[j]] = [easy_dataset[j], easy_dataset[i]];
+    }
+    for (let i = hard_dataset.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [hard_dataset[i], hard_dataset[j]] = [hard_dataset[j], hard_dataset[i]];
     }
 }
 
