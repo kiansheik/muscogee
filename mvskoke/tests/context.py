@@ -90,30 +90,37 @@ active_verbs = [
 three_or_more = [
     x
     for x in active_verbs
-    if len(x["senses"]) > 0 and "three or more" in x["senses"][0]["definition"]
+    if len(x["senses"]) > 0
+    and "three or more" in " ".join([y["definition"] for y in x["senses"]])
 ]
 two = [
     x
     for x in active_verbs
     if len(x["senses"]) > 0
-    and "of two" in x["senses"][0]["definition"]
-    and "two or more" not in x["senses"][0]["definition"]
+    and "of two" in " ".join([y["definition"] for y in x["senses"]])
+    and "two or more" not in " ".join([y["definition"] for y in x["senses"]])
 ]
 two_or_more = [
     x
     for x in active_verbs
-    if len(x["senses"]) > 0 and "two or more" in x["senses"][0]["definition"]
-]
-one = [
-    x
-    for x in active_verbs
-    if x not in three_or_more and x not in two and x not in two_or_more
+    if len(x["senses"]) > 0
+    and "two or more" in " ".join([y["definition"] for y in x["senses"]])
 ]
 
-one_set = {x["headword"] for x in one}
+
 two_set = {x["headword"] for x in two}
 two_or_more_set = {x["headword"] for x in two_or_more}
 three_or_more_set = {x["headword"] for x in three_or_more}
+
+one = [
+    x
+    for x in active_verbs
+    if x["headword"] not in three_or_more_set
+    and x["headword"] not in two_set
+    and x["headword"] not in two_or_more_set
+]
+
+one_set = {x["headword"] for x in one}
 
 print(f"Active Verbs: {len(active_verbs)}")
 v_objs = [mv.Verb(x["headword"], x["pronunciations"]) for x in active_verbs]
