@@ -175,22 +175,24 @@ for current_set in [one, two, two_or_more, three_or_more]:
             for related_word in related_words:
                 combined[word]["one"] = (
                     related_word["headword"]
-                    if related_word["headword"] in one_set
+                    if related_word["headword"] in one_set and word not in one_set
                     else combined[word]["one"]
                 )
                 combined[word]["two"] = (
                     related_word["headword"]
-                    if related_word["headword"] in two_set
+                    if related_word["headword"] in two_set and word not in two_set
                     else combined[word]["two"]
                 )
                 combined[word]["two_or_more"] = (
                     related_word["headword"]
                     if related_word["headword"] in two_or_more_set
+                    and word not in two_or_more_set
                     else combined[word]["two_or_more"]
                 )
                 combined[word]["three_or_more"] = (
                     related_word["headword"]
                     if related_word["headword"] in three_or_more_set
+                    and word not in three_or_more_set
                     else combined[word]["three_or_more"]
                 )
 all_pluriform = set(combined.keys())
@@ -297,7 +299,8 @@ def conjugate_verb(verb):
 
 # lik = [(verb, conjugate_verb(verb)) for verb in active_verbs_dict.values() if verb["raw_entry"]["first_word"] == "liketv"][0]
 all_conjugations = [(verb, conjugate_verb(verb)) for verb in active_verbs_dict.values()]
-kerretv = conjugate_verb("kerretv")
+hompetv = conjugate_verb("hompetv")
+pvpetv = conjugate_verb("pvpetv")
 # breakpoint()
 
 # make the quiz format
@@ -329,8 +332,8 @@ for root, verb in all_conjugations:
         )
         definition = f"{verb['1p'].root} - {d}"
         # { f: "Data not loaded...", m: "circunstancial", s: "ixé", o: "xé" },
-        if verb["1p"].stem == "lik":
-            breakpoint()
+        # if verb["1p"].stem == "lik":
+        # breakpoint()
         for key, value in [
             x
             for x in verb.items()
